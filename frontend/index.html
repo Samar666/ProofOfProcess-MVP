@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ProofOfProcess — MVP</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a73e8">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+<h1>ProofOfProcess <span class="badge">MVP</span></h1>
+<p class="tagline">Evidence of process, not proof of authorship. Shows <em>how</em> work developed.</p>
+<nav>
+<button id="nav-write" class="active">Write</button>
+<button id="nav-timeline">Timeline</button>
+<button id="nav-receipt">Receipt</button>
+<button id="nav-teacher">Teacher view</button>
+<button id="nav-parent">Parent view</button>
+<button id="nav-config">BG Agent Config</button>
+</nav>
+</header>
+<main>
+<section id="view-write" style="display:block">
+<h2>Write Assignment</h2>
+<div class="grid">
+<div>
+<label>Title <input id="f-title" placeholder="e.g. Should school start later?"></label>
+<label>Assignment prompt <input id="f-prompt" placeholder="Paste prompt"></label>
+<label>Anonymous code (no real name) <input id="f-code" placeholder="English-3B-07"></label>
+<label>Outline
+<textarea id="f-outline" rows="3" placeholder="1. Thesis… 2. Evidence… 3. Counterargument…"></textarea>
+</label>
+<label>Draft (auto-snapshots every 2 min, on large paste, on +200 chars)
+<textarea id="f-text" rows="14" placeholder="Write here…"></textarea>
+</label>
+<div class="row">
+<button id="btn-snap">Snapshot now</button>
+<button id="btn-milestone">Mark milestone</button>
+<span id="save-state" aria-live="polite">Saved ✓ chain verified</span>
+</div>
+<div class="row">
+<input id="f-wordcount" readonly aria-label="word count" value="0 words">
+<span id="chain-state">chain: GENESIS</span>
+</div>
+</div>
+<div>
+<h2>Sources</h2>
+<div class="row"><input id="s-title" placeholder="Source title"><input id="s-url" placeholder="https://…"><input id="s-claim" placeholder="Claim it supports"></div>
+<button id="btn-add-source">Add source</button>
+<ul id="source-list"></ul>
+<h2>AI disclosure (manual in v1)</h2>
+<label><input type="checkbox" id="ai-used"> I used AI for this draft</label>
+<label>Purpose <input id="ai-purpose" placeholder="e.g. suggest counterarguments"></label>
+<label>Accepted / edited <input id="ai-accepted" placeholder="rewrote one"></label>
+<label>Rejected <input id="ai-rejected" placeholder="rejected two"></label>
+<h2>Final reflection (required before export)</h2>
+<textarea id="f-reflection" rows="2" placeholder="My strongest change was…"></textarea>
+</div>
+</div>
+</section>
+<section id="view-timeline" style="display:none">
+<h2>Timeline replay</h2>
+<p>Meaningful snapshots only — not keystrokes. Click any snapshot to see diff vs previous.</p>
+<ol id="timeline"></ol>
+<div id="diff-box"><h3>Diff</h3><div id="diff-out">Select a snapshot.</div></div>
+<button id="btn-verify">Verify hash chain</button>
+<span id="verify-out"></span>
+</section>
+<section id="view-receipt" style="display:none">
+<h2>1-minute summary</h2>
+<div id="receipt-preview" class="receipt"></div>
+<div class="row">
+<button id="btn-generate">Generate shareable receipt</button>
+<button id="btn-pdf" onclick="window.print()">Print / Save PDF</button>
+</div>
+<div id="share-box"></div>
+<details><summary>How this was calculated</summary>
+<p>Snapshots fire on: 2-min interval if changed, paste >50 chars, +200 chars vs last, structural edit, source add, or manual. Classification: surface (<20 words), sentence (20–80), structural (>150 words, heading change, or paragraph moved). Hash = SHA-256(prev_hash + timestamp + text) via Web Crypto. Backend re-verifies. Redaction restarts chain and is labeled.</p>
+</details>
+</section>
+<section id="view-teacher" style="display:none">
+<h2>Teacher review (read-only)</h2>
+<div class="row"><input id="t-id" placeholder="receipt id e.g. a1b2c3d4"><button id="btn-load">Open receipt</button></div>
+<div id="teacher-out" class="receipt"><p>Paste a receipt link / id from a student. Goal: understand process in <60 seconds.</p></div>
+<div class="row"><span>Was this useful?</span><button id="fb-yes">Yes</button><button id="fb-no">No</button><span id="fb-out"></span></div>
+</section>
+<!-- Parent view -->
+<section id="view-parent" style="display:none">
+<h2>Parent progress report</h2>
+<div class="parent-card" id="parent-card-loading">
+  <p>Select a student code below to load their progress report.</p>
+</div>
+<div class="parent-card" id="parent-card-report" style="display:none">
+  <h3>Student: <span id="parent-student-code">—</span></h3>
+  <p class="alert-banner" id="parent-alert" style="display:none;"></p>
+  <div class="alarm-list" id="parent-alarms"><em>No alarms.</em></div>
+  <div class="form-row">
+    <label>Subject</label>
+    <select id="parent-subject"><option value="math">Math</option><option value="history">History</option><option value="all">All subjects</option></select>
+  </div>
+  <div class="form-row">
+    <label>On-time rate threshold</label>
+    <input type="number" id="parent-on-time-threshold" min="0" max="100" value="70" placeholder="%">
+  </div>
+  <div class="form-row">
+    <label>Session time threshold (min)</label>
+    <input type="number" id="parent-session-threshold" min="0" max="120" value="20" placeholder="min">
+  </div>
+  <button class="btn-small" onclick="refreshParentReport()">Refresh report</button>
+</div>
+</section>
+<!-- BG Agent Config -->
+<section id="view-config" style="display:none">
+<h2>Background Agent Configuration (Opt-In)</h2>
+<p>The background agent is a optional local service that runs on the student's laptop to collect homework data from Schoology/Google Classroom and send summarized reports to parents. <strong>This is opt-in only.</strong></p>
+<p><em>Note: In v1, the agent config is stored on the server, but the actual daemon must be started separately on the student's laptop by running:</em></p>
+<code>python -m bg_agent.scheduler --cadence weekly</code></p>
+<div class="parent-card">
+  <h3>Schoology Connection</h3>
+  <p>To connect Schoology, you'll need your Schoology API credentials. For a quick demo, use the test credentials below.</p>
+  <div class="form-row">
+    <label>Schoology Client ID</label>
+    <input type="text" id="schoology-client-id" value="test-schoology-client-id" placeholder="e.g. 123456-schoology-app-id">
+  </div>
+  <div class="form-row">
+    <label>Schoology Redirect URI</label>
+    <input type="text" id="schoology-redirect-uri" value="http://localhost:8013/api/auth/schoology/callback" placeholder="e.g. http://localhost:8013/api/auth/schoology/callback">
+  </div>
+  <div class="form-row">
+    <label>Schoology Scope</label>
+    <select id="schoology-scope">
+      <option value="read_assignments">read_assignments (recommended)</option>
+      <option value="read">read</option>
+      <option value="all">all</option>
+    </select>
+  </div>
+  <button class="btn-small" id="schoology-connect-btn" style="width:100%;margin-top:.5rem;">Connect Schoology</button>
+  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="schoology-status">Not connected</p>
+  <div class="form-row">
+    <label>Test Token (optional)</label>
+    <input type="text" id="schoology-test-token" placeholder="e.g. base64-encoded-token-for-demo">
+    <span class="muted" style="font-size:.75rem; margin-left:.3rem;">Use for demo if no OAuth setup</span>
+  </div>
+  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem;">Full Schoology OAuth setup at developers.schoology.com.</p>
+</div>
+<!-- Google Classroom Section -->
+<div class="parent-card" style="margin-top:1rem">
+  <h3>Google Classroom Connection</h3>
+  <p>Google Classroom requires OAuth 2.0 with <code>classroom.readonly</code> scope.</p>
+  <button class="btn-small" id="classroom-connect-btn" style="width:100%;margin-top:.5rem;">Connect Google Classroom</button>
+  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="classroom-status">Not connected</p>
+  <div class="form-row">
+    <label>Client ID</label>
+    <input type="text" id="classroom-client-id" value="test-google-client-id" placeholder="e.g. google-app-client-id">
+  </div>
+  <div class="form-row">
+    <label>Client Secret</label>
+    <input type="text" id="classroom-client-secret" value="test-google-client-secret" placeholder="e.g. google-app-client-secret">
+  </div>
+</div>
+<hr>
+<div class="parent-card">
+  <h3>Background Agent Settings</h3>
+  <div class="form-row">
+    <label>Student code <em>(e.g. English-3B-07)</em></label>
+    <input type="text" id="config-student-code" value="English-3B-07">
+  </div>
+  <div class="form-row">
+    <label>Parent email</label>
+    <input type="email" id="config-parent-email" placeholder="parent@example.com">
+  </div>
+  <div class="form-row">
+    <label>Report cadence</label>
+    <select id="config-cadence">
+      <option value="weekly">Weekly (recommended)</option>
+      <option value="daily">Daily</option>
+      <option value="weekday-only">Weekdays only</option>
+    </select>
+  </div>
+  <hr>
+  <div class="form-row">
+    <label>LMS connections</label><br>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+      <label style="font-size:.8rem; color: #059669;">Schoology</label>
+      <input type="checkbox" id="schoology-conn" disabled>
+      <span class="status-dot" style="margin-left:.5rem;width:8px;height:8px;border-radius:50%;background:#dc2626"></span><span id="schoology-status-text" style="font-size:.75rem;"> Not connected</span>
+      <label style="font-size:.8rem; color: #059669;">Google Classroom</label>
+      <input type="checkbox" id="classroom-conn" disabled>
+      <span class="status-dot" style="margin-left:.5rem;width:8px;height:8px;border-radius:50%;background:#dc2626;"></span><span id="classroom-status-text" style="font-size:.75rem;"> Not connected</span>
+    </div>
+  </div>
+  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem">Agent only reads assigned homework — it does not monitor web browsing, chat, or other apps.</p>
+  <button class="btn-small" onclick="saveConfig()" style="width:100%" id="config-start-btn">Save Config</button>
+  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="config-status">Config saved — start daemon on laptop</p>
+</div>
+</section>
+</main>
+<footer>
+<p><strong>Safety:</strong> Shows evidence of process, not proof of who wrote it. No AI-detector score. Student chooses what to share. Local-first — server stores only explicitly shared receipts, expiring in 90 days.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+/* ProofOfProcess — sleek MVP UI (v2 with parental view + bg agent config) */
+:root{
+  --bg:#f8fafc; --fg:#0f172a; --muted:#64748b;
+  --accent:#1e40af; --accent-soft:#bfdbfe;
+  --success:#059669; --warning:#d97706; --error:#dc2626;
+  --card:#ffffff; --card-hover:#f1f5f9;
+  --radius:12px; --shadow:0 1px 2px rgba(0,0,0,.05);
+  --transition:.2s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg);line-height:1.5;padding:20px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3{line-height:1.3;margin-bottom:.5rem}
+p{margin-bottom:.8rem}
+img{max-width:100%;display:block}
+
+/* Header */
+header{background:var(--accent);color:#fff;padding:1rem 1.5rem;border-radius:var(--radius) var(--radius) 0 0}
+header h1{font-size:1.4rem;margin:0}
+nav{margin-top:.5rem}
+nav button{margin-left:.5rem;padding:.5rem 1rem;font-size:.9rem;border:none;border-radius:6px;background:rgba(255,255,255,.2);color:#fff;cursor:transition}
+nav button.active{background:rgba(255,255,255,.3)}
+nav button:focus-visible{outline:2px solid #fff;outline-offset:2}
+
+/* Tabs */
+.tabs{display:flex;gap:.5rem;margin:1.5rem 0;border:1px solid #cbd5e1;border-radius:999px;overflow:hidden}
+.tabs button{flex:1;padding:.6rem .4rem;border:none;background:transparent;color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;transition:color var(--transition)}
+.tabs button:hover{color:var(--fg)}
+.tabs button.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+
+/* Sections */
+section{background:var(--card);border-radius:var(--radius);padding:1.5rem;margin:1rem 0;box-shadow:var(--shadow)}
+section.hidden{display:none}
+
+/* Editor */
+#view-write .form-group{margin:1rem 0}
+#view-write label{display:block;font-size:.85rem;margin-bottom:.4rem}
+#view-write input,#view-write textarea,#view-write select{width:100%;padding:.8rem;border:1px solid #94a3b8;border-radius:8px;font-size:1rem;background:#f1f5f9;transition:border var(--transition),box-shadow var(--transition)}
+#view-write input:focus,#view-write textarea:focus,#view-write select:focus{border:1.5px solid var(--accent);outline:none;background:#ecf2f7}
+#view-write textarea{min-height:120px;resize:vertical}
+#view-write .row{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+#view-write .row .btn{flex:1}
+
+/* Sources */
+#source-list{list-style:none;padding:.5rem 0;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
+#source-list li{margin:.5rem 0;padding:.5rem;border-radius:8px;background:#f8faff;display:flex;justify-content:space-between;align-items:center}
+#source-list a{color:var(--accent);word-break:break-all}
+#source-list .remove{background:#fee2e2;color:#dc2626;border:none;padding:.3rem .6rem;border-radius:6px;font-size:.75rem;cursor:pointer}
+
+/* Timeline */
+#view-timeline ol{counter-reset;list-style:none;padding:0}
+#view-timeline li{margin:.6rem 0;padding:.6rem;border-radius:var(--radius);background:var(--card);border:1px solid #e2e8f0;transition:var(--transition)}
+#view-timeline li:hover{border-color:var(--accent)}
+#view-timeline li.sel{border-color:var(--accent);background:var(--accent-soft)}
+#view-timeline .badge{background:var(--accent);color:#fff;padding:.2rem .4rem;border-radius:6px;font-size:.7rem;margin-left:.5rem}
+#diff-out{min-height:80px;margin-top:.5rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:.8rem;white-space:pre-wrap}
+
+/* Receipt */
+#receipt-preview{font-size:.9rem}
+#receipt-preview h3{margin:.5rem 0;padding-bottom:.3rem;border-bottom:1px solid #e2e8f0}
+#receipt-preview p{margin:.3rem 0}
+#receipt-preview .row{margin:.4rem 0}
+#receipt-preview .subject{color:var(--muted);font-size:.8rem}
+
+/* Teacher view */
+#teacher-out{font-size:.9rem}
+#teacher-out p{margin:.4rem 0}
+#teacher-out .alarm{color:var(--warning);background:#fffbeb;border:1px solid #f5dbb5;padding:.4rem .6rem;border-radius:6px;margin:.4rem 0;display:inline-block}
+
+/* Feedback */
+#fb-out{margin-top:.5rem;font-size:.8rem}
+#fb-yes,#fb-no{margin-left:.4rem;padding:.4rem .8rem;border:none;border-radius:6px;cursor:pointer;background:#e2e8f0;color:var(--fg)}
+#fb-yes:hover{background:#cbd5e1}
+
+/* Shared link */
+#share-box{background:var(--accent-soft);padding:.8rem;border-radius:var(--radius);margin:1rem 0;color:var(--accent);font-size:.9rem}
+
+/* Parental / BG Agent views (NEW) */
+#view-parent{padding:1rem 0}
+.parent-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:var(--radius);padding:1.5rem;margin:1rem 0;box-shadow:var(--shadow)}
+.parent-card h3{margin-top:0;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #e2e8f0}
+.parent-card p{margin:.4rem 0;font-size:.9rem}
+.parent-card .alert-banner{background:#fef3c7;border-left:4px solid var(--warning);padding:.6rem 1rem;margin:.8rem 0;border-radius:var(--radius);font-size:.9rem;color:#92400e}
+.parent-card .alarm-list{margin-top:.4rem}
+.parent-card .alarm-list li{margin:.3rem 0;padding:.3rem .5rem;background:#fee2e2;border-radius:6px;font-size:.85rem}
+.parent-card .form-row{margin:.7rem 0}
+.parent-card .form-row label{display:block;font-size:.85rem;margin-bottom:.3rem}
+.parent-card .form-row input{width:100%;padding:.6rem;border:1px solid #94a3b8;border-radius:6px;font-size:.95rem;background:#f1f5f9}
+.parent-card .form-row input:focus{border-color:var(--accent);outline:none;background:#ecf2f7}
+.parent-card .btn-small{padding:.5rem .8rem;font-size:.85rem;border:none;border-radius:6px;cursor:pointer;background:var(--accent);color:#fff;transition:background .2s}
+.parent-card .btn-small:hover{background:#1e3a8a}
+.parent-card .btn-secondary{background:#64748b}
+.parent-card .btn-secondary:hover{background:#475259}
+.parent-card .connect-status{margin-top:.8rem;padding:.6rem;border-radius:var(--radius);background:#f0f4f8;border:1px solid #cbd5e1;font-size:.85rem}
+.parent-card .connect-status.connected{background:#e6fdf5;border-color:#059669;color:#059669}
+.parent-card .connect-status.disconnected{background:#fef2f2;border-color:#dc2626;color:#dc2626}
+
+/* Email preview */
+#view-email{padding:1rem 0}
+.email-preview{max-height:400px;overflow:auto;border:1px solid #e2e8f0;border-radius:var(--radius);background:#fff;padding:1rem;font-size:.85rem}
+.email-preview pre{white-space:pre-wrap;color:#0f172a}
+.email-preview .to{color:var(--accent);font-weight:600;margin-bottom:.5rem}
+.email-preview .subject{color:var(--muted);margin-bottom:.5rem;display:block}
+.email-preview .footer{margin-top:1rem;padding-top:1rem;border-top:1px solid #e2e8f0;font-size:.75rem;color:var(--muted)}
+.email-preview .footer a{color:var(--accent)}
+
+/* Responsive */
+@media(max-width:600px){header h1{font-size:1.2rem}.tabs button{font-size:.75rem}.form-group{margin:.6rem 0}}.parent-card .form-row{margin:.5rem 0}
