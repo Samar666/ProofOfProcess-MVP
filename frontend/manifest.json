@@ -1,1 +1,10 @@
-{"name":"ProofOfProcess MVP","short_name":"PoP","start_url":".","display":"standalone","background_color":"#f7f9fc","theme_color":"#1a73e8","icons":[]}
+{
+  "name": "ProofOfProcess",
+  "short_name": "PoP",
+  "description": "Show the work behind the work. Process receipts for students, teachers, and parents.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#4f46e5",
+  "icons": []
+}

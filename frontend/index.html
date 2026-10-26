@@ -3,204 +3,324 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ProofOfProcess — MVP</title>
+<title>ProofOfProcess</title>
+<meta name="description" content="Show the work behind the work. Process receipts for students, teachers, and parents.">
+<meta name="theme-color" content="#4f46e5">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1a73e8">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header>
-<h1>ProofOfProcess <span class="badge">MVP</span></h1>
-<p class="tagline">Evidence of process, not proof of authorship. Shows <em>how</em> work developed.</p>
-<nav>
-<button id="nav-write" class="active">Write</button>
-<button id="nav-timeline">Timeline</button>
-<button id="nav-receipt">Receipt</button>
-<button id="nav-teacher">Teacher view</button>
-<button id="nav-parent">Parent view</button>
-<button id="nav-config">BG Agent Config</button>
-</nav>
-</header>
-<main>
-<section id="view-write" style="display:block">
-<h2>Write Assignment</h2>
-<div class="grid">
-<div>
-<label>Title <input id="f-title" placeholder="e.g. Should school start later?"></label>
-<label>Assignment prompt <input id="f-prompt" placeholder="Paste prompt"></label>
-<label>Anonymous code (no real name) <input id="f-code" placeholder="English-3B-07"></label>
-<label>Outline
-<textarea id="f-outline" rows="3" placeholder="1. Thesis… 2. Evidence… 3. Counterargument…"></textarea>
-</label>
-<label>Draft (auto-snapshots every 2 min, on large paste, on +200 chars)
-<textarea id="f-text" rows="14" placeholder="Write here…"></textarea>
-</label>
-<div class="row">
-<button id="btn-snap">Snapshot now</button>
-<button id="btn-milestone">Mark milestone</button>
-<span id="save-state" aria-live="polite">Saved ✓ chain verified</span>
-</div>
-<div class="row">
-<input id="f-wordcount" readonly aria-label="word count" value="0 words">
-<span id="chain-state">chain: GENESIS</span>
-</div>
-</div>
-<div>
-<h2>Sources</h2>
-<div class="row"><input id="s-title" placeholder="Source title"><input id="s-url" placeholder="https://…"><input id="s-claim" placeholder="Claim it supports"></div>
-<button id="btn-add-source">Add source</button>
-<ul id="source-list"></ul>
-<h2>AI disclosure (manual in v1)</h2>
-<label><input type="checkbox" id="ai-used"> I used AI for this draft</label>
-<label>Purpose <input id="ai-purpose" placeholder="e.g. suggest counterarguments"></label>
-<label>Accepted / edited <input id="ai-accepted" placeholder="rewrote one"></label>
-<label>Rejected <input id="ai-rejected" placeholder="rejected two"></label>
-<h2>Final reflection (required before export)</h2>
-<textarea id="f-reflection" rows="2" placeholder="My strongest change was…"></textarea>
-</div>
-</div>
-</section>
-<section id="view-timeline" style="display:none">
-<h2>Timeline replay</h2>
-<p>Meaningful snapshots only — not keystrokes. Click any snapshot to see diff vs previous.</p>
-<ol id="timeline"></ol>
-<div id="diff-box"><h3>Diff</h3><div id="diff-out">Select a snapshot.</div></div>
-<button id="btn-verify">Verify hash chain</button>
-<span id="verify-out"></span>
-</section>
-<section id="view-receipt" style="display:none">
-<h2>1-minute summary</h2>
-<div id="receipt-preview" class="receipt"></div>
-<div class="row">
-<button id="btn-generate">Generate shareable receipt</button>
-<button id="btn-pdf" onclick="window.print()">Print / Save PDF</button>
-</div>
-<div id="share-box"></div>
-<details><summary>How this was calculated</summary>
-<p>Snapshots fire on: 2-min interval if changed, paste >50 chars, +200 chars vs last, structural edit, source add, or manual. Classification: surface (<20 words), sentence (20–80), structural (>150 words, heading change, or paragraph moved). Hash = SHA-256(prev_hash + timestamp + text) via Web Crypto. Backend re-verifies. Redaction restarts chain and is labeled.</p>
-</details>
-</section>
-<section id="view-teacher" style="display:none">
-<h2>Teacher review (read-only)</h2>
-<div class="row"><input id="t-id" placeholder="receipt id e.g. a1b2c3d4"><button id="btn-load">Open receipt</button></div>
-<div id="teacher-out" class="receipt"><p>Paste a receipt link / id from a student. Goal: understand process in <60 seconds.</p></div>
-<div class="row"><span>Was this useful?</span><button id="fb-yes">Yes</button><button id="fb-no">No</button><span id="fb-out"></span></div>
-</section>
-<!-- Parent view -->
-<section id="view-parent" style="display:none">
-<h2>Parent progress report</h2>
-<div class="parent-card" id="parent-card-loading">
-  <p>Select a student code below to load their progress report.</p>
-</div>
-<div class="parent-card" id="parent-card-report" style="display:none">
-  <h3>Student: <span id="parent-student-code">—</span></h3>
-  <p class="alert-banner" id="parent-alert" style="display:none;"></p>
-  <div class="alarm-list" id="parent-alarms"><em>No alarms.</em></div>
-  <div class="form-row">
-    <label>Subject</label>
-    <select id="parent-subject"><option value="math">Math</option><option value="history">History</option><option value="all">All subjects</option></select>
-  </div>
-  <div class="form-row">
-    <label>On-time rate threshold</label>
-    <input type="number" id="parent-on-time-threshold" min="0" max="100" value="70" placeholder="%">
-  </div>
-  <div class="form-row">
-    <label>Session time threshold (min)</label>
-    <input type="number" id="parent-session-threshold" min="0" max="120" value="20" placeholder="min">
-  </div>
-  <button class="btn-small" onclick="refreshParentReport()">Refresh report</button>
-</div>
-</section>
-<!-- BG Agent Config -->
-<section id="view-config" style="display:none">
-<h2>Background Agent Configuration (Opt-In)</h2>
-<p>The background agent is a optional local service that runs on the student's laptop to collect homework data from Schoology/Google Classroom and send summarized reports to parents. <strong>This is opt-in only.</strong></p>
-<p><em>Note: In v1, the agent config is stored on the server, but the actual daemon must be started separately on the student's laptop by running:</em></p>
-<code>python -m bg_agent.scheduler --cadence weekly</code></p>
-<div class="parent-card">
-  <h3>Schoology Connection</h3>
-  <p>To connect Schoology, you'll need your Schoology API credentials. For a quick demo, use the test credentials below.</p>
-  <div class="form-row">
-    <label>Schoology Client ID</label>
-    <input type="text" id="schoology-client-id" value="test-schoology-client-id" placeholder="e.g. 123456-schoology-app-id">
-  </div>
-  <div class="form-row">
-    <label>Schoology Redirect URI</label>
-    <input type="text" id="schoology-redirect-uri" value="http://localhost:8013/api/auth/schoology/callback" placeholder="e.g. http://localhost:8013/api/auth/schoology/callback">
-  </div>
-  <div class="form-row">
-    <label>Schoology Scope</label>
-    <select id="schoology-scope">
-      <option value="read_assignments">read_assignments (recommended)</option>
-      <option value="read">read</option>
-      <option value="all">all</option>
-    </select>
-  </div>
-  <button class="btn-small" id="schoology-connect-btn" style="width:100%;margin-top:.5rem;">Connect Schoology</button>
-  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="schoology-status">Not connected</p>
-  <div class="form-row">
-    <label>Test Token (optional)</label>
-    <input type="text" id="schoology-test-token" placeholder="e.g. base64-encoded-token-for-demo">
-    <span class="muted" style="font-size:.75rem; margin-left:.3rem;">Use for demo if no OAuth setup</span>
-  </div>
-  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem;">Full Schoology OAuth setup at developers.schoology.com.</p>
-</div>
-<!-- Google Classroom Section -->
-<div class="parent-card" style="margin-top:1rem">
-  <h3>Google Classroom Connection</h3>
-  <p>Google Classroom requires OAuth 2.0 with <code>classroom.readonly</code> scope.</p>
-  <button class="btn-small" id="classroom-connect-btn" style="width:100%;margin-top:.5rem;">Connect Google Classroom</button>
-  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="classroom-status">Not connected</p>
-  <div class="form-row">
-    <label>Client ID</label>
-    <input type="text" id="classroom-client-id" value="test-google-client-id" placeholder="e.g. google-app-client-id">
-  </div>
-  <div class="form-row">
-    <label>Client Secret</label>
-    <input type="text" id="classroom-client-secret" value="test-google-client-secret" placeholder="e.g. google-app-client-secret">
-  </div>
-</div>
-<hr>
-<div class="parent-card">
-  <h3>Background Agent Settings</h3>
-  <div class="form-row">
-    <label>Student code <em>(e.g. English-3B-07)</em></label>
-    <input type="text" id="config-student-code" value="English-3B-07">
-  </div>
-  <div class="form-row">
-    <label>Parent email</label>
-    <input type="email" id="config-parent-email" placeholder="parent@example.com">
-  </div>
-  <div class="form-row">
-    <label>Report cadence</label>
-    <select id="config-cadence">
-      <option value="weekly">Weekly (recommended)</option>
-      <option value="daily">Daily</option>
-      <option value="weekday-only">Weekdays only</option>
-    </select>
-  </div>
-  <hr>
-  <div class="form-row">
-    <label>LMS connections</label><br>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-      <label style="font-size:.8rem; color: #059669;">Schoology</label>
-      <input type="checkbox" id="schoology-conn" disabled>
-      <span class="status-dot" style="margin-left:.5rem;width:8px;height:8px;border-radius:50%;background:#dc2626"></span><span id="schoology-status-text" style="font-size:.75rem;"> Not connected</span>
-      <label style="font-size:.8rem; color: #059669;">Google Classroom</label>
-      <input type="checkbox" id="classroom-conn" disabled>
-      <span class="status-dot" style="margin-left:.5rem;width:8px;height:8px;border-radius:50%;background:#dc2626;"></span><span id="classroom-status-text" style="font-size:.75rem;"> Not connected</span>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark" aria-hidden="true">P</span>
+    <div class="brand-text">
+      <h1>ProofOfProcess</h1>
+      <p>Show the work behind the work.</p>
     </div>
   </div>
-  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem">Agent only reads assigned homework — it does not monitor web browsing, chat, or other apps.</p>
-  <button class="btn-small" onclick="saveConfig()" style="width:100%" id="config-start-btn">Save Config</button>
-  <p class="muted" style="margin:1rem 0 0 0;font-size:.8rem" id="config-status">Config saved — start daemon on laptop</p>
-</div>
-</section>
+  <nav class="tabs" aria-label="Primary">
+    <button class="tab is-active" data-view="write" aria-current="page">Write</button>
+    <button class="tab" data-view="receipt">Receipt</button>
+    <button class="tab" data-view="teacher">Teacher</button>
+    <button class="tab" data-view="parent">Parent</button>
+    <button class="tab" data-view="settings">Settings</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ============ WRITE ============ -->
+  <section id="view-write" class="view is-active" aria-labelledby="write-title">
+    <div class="view-head">
+      <h2 id="write-title">Write</h2>
+      <p>Work normally. We save a few meaningful checkpoints — never keystrokes.</p>
+    </div>
+
+    <ol class="steps" aria-label="How it works">
+      <li><span class="step-num">1</span><span><strong>Plan</strong><small>Set up the assignment and outline</small></span></li>
+      <li><span class="step-num">2</span><span><strong>Draft</strong><small>Write, add sources, save checkpoints</small></span></li>
+      <li><span class="step-num">3</span><span><strong>Reflect</strong><small>Say what changed, then make a receipt</small></span></li>
+    </ol>
+
+    <article class="card">
+      <h3>Assignment</h3>
+      <div class="grid-3">
+        <label>Title
+          <span class="hint" tabindex="0" data-tip="A short name for this piece. Only you and your teacher see it.">?</span>
+          <input id="title" placeholder="e.g. Should school start later?">
+        </label>
+        <label>Prompt
+          <span class="hint" tabindex="0" data-tip="Paste the question your teacher asked. It gives the receipt context.">?</span>
+          <input id="prompt" placeholder="Paste the assignment prompt">
+        </label>
+        <label>Anonymous code
+          <span class="hint" tabindex="0" data-tip="Your class code, like English-3B-07. Do not use your real name.">?</span>
+          <input id="code" placeholder="English-3B-07">
+        </label>
+      </div>
+      <div id="assignment-picker" hidden>
+        <label>Schoology assignment (optional)
+          <span class="hint" tabindex="0" data-tip="Link this receipt to a synced assignment so it appears in the parent progress view.">?</span>
+          <select id="assignment">
+            <option value="">No linked assignment</option>
+          </select>
+        </label>
+      </div>
+    </article>
+
+    <div class="split">
+      <article class="card grow">
+        <div class="card-head">
+          <h3>Draft</h3>
+          <span class="chip" id="chain">chain: GENESIS</span>
+        </div>
+        <label>Outline
+          <span class="hint" tabindex="0" data-tip="Your plan before writing. A few bullets are enough.">?</span>
+          <textarea id="outline" rows="3" placeholder="1. Thesis  2. Evidence  3. Counterargument"></textarea>
+        </label>
+        <label>Draft
+          <span class="hint" tabindex="0" data-tip="Write normally. We save a checkpoint about every 2 minutes; no keystrokes are recorded.">?</span>
+          <textarea id="draft" rows="16" placeholder="Write here…"></textarea>
+        </label>
+        <p class="helper">Autosaves as you write. Use <strong>Save checkpoint</strong> before a big change.</p>
+        <div class="toolbar">
+          <span class="muted" id="wordcount">0 words</span>
+          <span class="muted" id="save-state" aria-live="polite"></span>
+          <span class="spacer"></span>
+          <button class="btn" id="snapshot" title="Save a checkpoint of the current draft">Save checkpoint</button>
+          <button class="btn btn-ghost" id="milestone" title="Label an important moment, like a thesis change">Mark a moment</button>
+        </div>
+      </article>
+
+      <aside class="side stack">
+        <article class="card">
+          <h3>Sources
+            <span class="hint" tabindex="0" data-tip="Add a link and the claim it supports. This becomes evidence in the receipt.">?</span>
+          </h3>
+          <input id="src-title" placeholder="Source title" aria-label="Source title">
+          <input id="src-url" placeholder="https://…" aria-label="Source URL">
+          <input id="src-claim" placeholder="Claim it supports" aria-label="Claim this source supports">
+          <button class="btn btn-ghost btn-block" id="add-source">Add source</button>
+          <ul class="list" id="source-list"></ul>
+        </article>
+
+        <article class="card">
+          <h3>AI use
+            <span class="hint" tabindex="0" data-tip="Be honest about what you used, kept, and rejected. This is a disclosure, not a detector.">?</span>
+          </h3>
+          <label class="check"><input type="checkbox" id="ai-used"> I used AI for this draft</label>
+          <div id="ai-fields" class="stack" hidden>
+            <input id="ai-purpose" placeholder="What I used it for" aria-label="What I used AI for">
+            <input id="ai-accepted" placeholder="What I kept or edited" aria-label="What I kept or edited">
+            <input id="ai-rejected" placeholder="What I rejected" aria-label="What I rejected">
+          </div>
+        </article>
+      </aside>
+    </div>
+
+    <article class="card">
+      <h3>Reflection
+        <span class="hint" tabindex="0" data-tip="One or two sentences: what changed most, and why. Required before you make a receipt.">?</span>
+      </h3>
+      <p class="helper">Required before you make a receipt.</p>
+      <textarea id="reflection" rows="3" placeholder="My strongest change was…"></textarea>
+    </article>
+
+    <article class="card">
+      <details id="history-details">
+        <summary>
+          <span class="summary-title">History</span>
+          <span class="chip" id="snap-count">0 checkpoints</span>
+        </summary>
+        <p class="muted">Click a checkpoint to see what changed.</p>
+        <ol class="timeline" id="timeline"></ol>
+        <div class="diff">
+          <h4>Change</h4>
+          <div class="diff-body" id="diff">Select a checkpoint.</div>
+        </div>
+        <button class="btn btn-ghost" id="verify">Verify hash chain</button>
+        <span class="muted" id="verify-out"></span>
+      </details>
+    </article>
+  </section>
+
+  <!-- ============ RECEIPT ============ -->
+  <section id="view-receipt" class="view" aria-labelledby="receipt-title">
+    <div class="view-head">
+      <h2 id="receipt-title">Receipt</h2>
+      <p>A one-minute summary of how the work was made.</p>
+    </div>
+    <div class="split">
+      <article class="card grow receipt" id="receipt-preview"></article>
+      <aside class="side stack">
+        <article class="card">
+          <h3>Share</h3>
+          <button class="btn btn-block" id="generate">Generate teacher link</button>
+          <button class="btn btn-ghost btn-block" id="create-digest">Create parent link</button>
+          <button class="btn btn-ghost btn-block" id="print">Print / Save PDF</button>
+          <div class="share" id="share-box"></div>
+        </article>
+        <details class="card">
+          <summary class="summary-title">How this works</summary>
+          <p class="muted">Checkpoints fire on a 2-minute interval if the text changed, on a large paste, after +200 characters, on a structural edit, when a source is added, or manually. Each checkpoint is hashed as SHA-256(previous hash | time | text). The server re-verifies the chain. This shows process, not authorship.</p>
+        </details>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ TEACHER ============ -->
+  <section id="view-teacher" class="view" aria-labelledby="teacher-title">
+    <div class="view-head">
+      <h2 id="teacher-title">Teacher</h2>
+      <p>Review a student's process in under a minute.</p>
+    </div>
+
+    <article class="card">
+      <div class="toolbar">
+        <input id="receipt-id" placeholder="Receipt id or link">
+        <button class="btn" id="open-receipt">Open receipt</button>
+      </div>
+    </article>
+
+    <article class="card receipt" id="teacher-out">
+      <p class="muted">Paste a receipt id or link to begin.</p>
+    </article>
+
+    <article class="card" id="feedback-card">
+      <div class="toolbar">
+        <span>Was this useful?</span>
+        <button class="btn btn-ghost" id="fb-yes">Yes</button>
+        <button class="btn btn-ghost" id="fb-no">No</button>
+        <span class="muted" id="fb-out"></span>
+      </div>
+    </article>
+
+    <article class="card" id="note-card" hidden>
+      <h3>Note for the parent view</h3>
+      <p class="muted">This appears in the parent progress link. Do not include grades or private student information.</p>
+      <textarea id="note-body" rows="3" placeholder="e.g. Strong revision after Source 3 — ask about the thesis change."></textarea>
+      <div class="toolbar">
+        <button class="btn" id="save-note">Save note</button>
+        <span class="muted" id="note-status"></span>
+      </div>
+      <ul class="list" id="note-list"></ul>
+    </article>
+  </section>
+
+  <!-- ============ PARENT ============ -->
+  <section id="view-parent" class="view" aria-labelledby="parent-title">
+    <div class="view-head">
+      <h2 id="parent-title">Parent</h2>
+      <p>A read-only progress summary. No account needed.</p>
+    </div>
+
+    <article class="card" id="parent-load">
+      <p class="muted">Paste the parent link or token you received.</p>
+      <div class="toolbar">
+        <input id="parent-token" placeholder="Parent link or token">
+        <button class="btn" id="open-parent">Open progress</button>
+      </div>
+      <p class="muted small">To create a link for a demo, open the Receipt tab and click “Create parent link”.</p>
+    </article>
+
+    <div class="stack" id="parent-out"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="view-settings" class="view" aria-labelledby="settings-title">
+    <div class="view-head">
+      <h2 id="settings-title">Settings</h2>
+      <p>Teacher sign-in and delivery settings.</p>
+    </div>
+
+    <div class="split">
+      <div class="stack grow">
+        <article class="card" id="auth-card">
+          <h3>Teacher sign-in</h3>
+          <p class="muted" id="auth-note">Checking sign-in…</p>
+          <div class="toolbar" id="auth-actions"></div>
+        </article>
+
+        <div class="stack" id="settings-body" hidden>
+        <article class="card">
+          <h3>Student &amp; delivery</h3>
+          <label>Anonymous code
+            <input id="setting-code" placeholder="English-3B-07">
+          </label>
+          <label>Parent email
+            <input id="setting-email" type="email" placeholder="parent@example.com">
+          </label>
+          <label>Report cadence
+            <select id="setting-cadence">
+              <option value="weekly">Weekly (recommended)</option>
+              <option value="daily">Daily</option>
+              <option value="weekday-only">Weekdays only</option>
+            </select>
+          </label>
+          <div class="toolbar">
+            <button class="btn" id="save-settings">Save settings</button>
+            <span class="muted" id="settings-status"></span>
+          </div>
+        </article>
+
+        <article class="card" data-dev-only hidden>
+          <h3>Schoology (via MCP)</h3>
+          <p class="muted">This test checks the MCP link on this computer. To connect a student laptop to a hosted app, use a student sync token below; Schoology cookies never leave the laptop.</p>
+          <label>School subdomain
+            <input id="setting-schoology-base" placeholder="e.g. dtuhsd">
+          </label>
+          <label>schoology-mcp repo path (optional)
+            <input id="setting-schoology-dir" placeholder="e.g. /Users/you/schoology-mcp">
+          </label>
+          <div class="toolbar">
+            <button class="btn btn-ghost" id="test-schoology">Test local MCP</button>
+            <span class="muted" id="schoology-status"></span>
+          </div>
+        </article>
+
+        <article class="card" data-dev-only hidden>
+          <h3>Student sync tokens</h3>
+          <p class="muted">Create a token for a student laptop. The bridge fetches Schoology assignments locally and posts only metadata here. Hosted deployments should use an official LMS API.</p>
+          <label>Anonymous code
+            <input id="sync-code" placeholder="English-3B-07">
+          </label>
+          <div class="toolbar">
+            <button class="btn" id="create-sync-token">Create sync token</button>
+            <span class="muted" id="sync-status"></span>
+          </div>
+          <div id="sync-token-out"></div>
+          <ul class="list" id="sync-token-list"></ul>
+        </article>
+        </div>
+      </div>
+
+      <aside class="side stack">
+        <article class="card">
+          <h3>Connections</h3>
+          <div class="status-row"><span>Teacher account</span><span class="chip" id="auth-pill">Signed out</span></div>
+          <div class="status-row" data-dev-only hidden><span>Schoology</span><span class="chip" id="schoology-pill">Not connected</span></div>
+        </article>
+        <article class="card" data-dev-only hidden>
+          <h3>Background agent</h3>
+          <p class="muted">The local connector runs on the student's laptop, where their Schoology session lives. It sends assignment titles and dates to the app — never cookies or passwords.</p>
+        </article>
+        <article class="card">
+          <h3>Privacy</h3>
+          <p class="muted">No keystroke logging. No AI-detector score. Anonymous codes only. Receipts expire after 90 days. Parents see summaries, never raw drafts.</p>
+        </article>
+      </aside>
+    </div>
+  </section>
+
 </main>
-<footer>
-<p><strong>Safety:</strong> Shows evidence of process, not proof of who wrote it. No AI-detector score. Student chooses what to share. Local-first — server stores only explicitly shared receipts, expiring in 90 days.</p>
+
+<footer class="footer">
+  <p>Shows evidence of process, not proof of who wrote it. Students choose what to share.</p>
 </footer>
 
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
 <script src="app.js"></script>
 </body>
 </html>

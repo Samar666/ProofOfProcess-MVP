@@ -1,6 +1,8 @@
 student_code: English-3B-07
-parent_email: parent@example.com
-cadence: weekly
+parent_email: sonalkar@Gmail.com
+cadence: daily
 lms_schoology_connected: false
 lms_classroom_connected: false
-opt_in_timestamp: '2026-10-19T03:09:30.852294Z'
+schoology_base_url: ''
+schoology_mcp_dir: ''
+opt_in_timestamp: '2026-10-25T20:46:56.245361Z'

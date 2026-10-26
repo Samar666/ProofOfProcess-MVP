@@ -1,0 +1,117 @@
+Proof of Process (working name) — Quick Outline
+
+1. PURPOSE
+
+Proof of Process shows how a piece of writing was made, not just what was submitted.
+
+• Give teachers a fast, verifiable view of the student's process: planning, checkpoints, sources, AI use, and reflection.
+• Reduce AI suspicion with honest disclosure instead of AI detection.
+• Give parents a private, read-only progress link with no account required.
+• Keep the student's work and data under their control.
+• Make the process visible without recording keystrokes or surveilling the writer.
+
+2. WHAT WOULD BE BUILT
+
+Student workspace
+• Assignment setup: title, prompt, anonymous class code.
+• Outline, draft, and reflection fields.
+• Source list with a link and the claim each source supports.
+• AI-use disclosure: what it was used for, what was kept, what was rejected.
+• Manual "Save checkpoint" plus automatic checkpoints on a timer, large paste, +200 characters, source added, or major revision.
+• Checkpoint history with a before/after diff and hash-chain verification.
+
+Verifiable receipt
+• One-page process summary: checkpoints, sources, milestones, AI disclosure, reflection.
+• SHA-256 hash chain (previous hash + timestamp + text) re-verified by the server on submission.
+• Shareable teacher link and print / Save PDF option.
+
+Teacher view
+• Open a receipt by link or id.
+• See chain verification, checkpoint count, sources, AI disclosure, and reflection in under a minute.
+• Quick "Was this useful?" feedback.
+
+Parent digest
+• Tokenized, read-only progress link.
+• No parent account.
+• Links expire after 30 days; receipt links expire after 90 days.
+
+Accounts and security
+• Teachers sign in with Google.
+• Local development sign-in is gated behind POP_DEV_AUTH=1.
+• Settings and integration tests are teacher-only.
+• Session tokens are stored hashed; parent tokens are stored hashed.
+
+Data and integrations
+• SQLite persistence for projects, receipts, feedback, digests, settings, sessions, and assignments.
+• Schoology via a local MCP bridge: assignment metadata only; login cookies stay on the student's laptop.
+• Later hosted version would use an official district-provisioned LMS API.
+
+Foundation
+• FastAPI backend.
+• Static HTML, CSS, and JavaScript PWA with no build step.
+• Installable on a phone or laptop.
+
+Later
+• Class and teacher tenancy so each teacher sees only their own classes.
+• Unguessable receipt ids.
+• Assignment import and class dashboards.
+• Official Google OAuth credentials and production hosting.
+• School/district rollout and pricing.
+
+3. HOW TO TEST IT
+
+Prep
+1. Start the backend: cd ~/proofofprocess_app/backend && python3 -m uvicorn app:app --port 8013 --host 127.0.0.1
+2. Open http://localhost:8013/ and hard-refresh with Cmd+Shift+R.
+3. Optional clean draft: in DevTools Console run localStorage.removeItem("pop_project_v3"); location.reload()
+
+Write screen
+4. Confirm the Plan → Draft → Reflect strip appears.
+5. Hover or tap each "?" next to the labels; confirm the tooltip explains what to enter.
+6. Confirm AI fields stay hidden until "I used AI for this draft" is checked.
+7. Fill in title, prompt, code, outline, draft, sources, AI disclosure, and reflection.
+
+Checkpoint button
+8. With an empty draft, click Save checkpoint. Expected: "Nothing to save".
+9. Type a sentence and click Save checkpoint. Expected: green "Saved" flash, then the label returns to "Save checkpoint"; History count increases and status shows the checkpoint number.
+10. Click Save checkpoint again without editing. Expected: "No changes".
+
+Autosave
+11. Paste more than 50 characters. Expected: a paste checkpoint within about one second.
+12. Type 200+ new characters. Expected: a growth checkpoint.
+13. Wait two minutes after a change. Expected: an auto checkpoint.
+14. Add a source. Expected: a source_added checkpoint.
+
+Validation
+15. Try adding a source without a URL. Expected: error toast.
+16. Try Generate teacher link with no reflection. Expected: the app asks for a reflection and returns to Write.
+
+History and verification
+17. Click an older checkpoint. Expected: the Change panel shows additions and removals.
+18. Click Verify hash chain. Expected: "Verified N checkpoints."
+
+Receipt and teacher review
+19. Open Receipt and click Generate teacher link. Expected: success toast and a teacher link.
+20. Open the link in the Teacher tab. Expected: verified chain badge, checkpoints, sources, AI disclosure, and reflection.
+21. Click Yes or No under "Was this useful?". Expected: feedback confirmation.
+
+Parent digest
+22. Back in Receipt, click Create parent link and copy it.
+23. Open the link in an incognito window. Expected: read-only progress with no editing controls.
+24. Confirm the link is designed to expire after 30 days.
+
+Persistence
+25. Reload the page. Expected: draft, sources, AI fields, reflection, and checkpoints are still there.
+
+Auth and settings
+26. Open Settings while signed out. Expected: settings hidden; only teacher sign-in shown.
+27. Click Local dev sign-in (if POP_DEV_AUTH=1). Expected: settings appear and the side panel shows signed in.
+28. Change the anonymous code or report cadence and click Save settings. Expected: saved confirmation.
+29. Click Test connection under Schoology. Expected: fails cleanly until the local MCP bridge is installed and configured.
+30. Click Sign out. Expected: settings hide and protected actions return to signed out.
+
+Known limits
+• Google sign-in needs GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env.
+• Schoology needs the mcp package, a cloned schoology-mcp, and a signed-in Chrome Schoology session.
+• Class/teacher tenancy and unguessable receipt ids are not built yet.
+• Everything currently runs on localhost; hosting and a domain come later.
