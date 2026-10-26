@@ -249,6 +249,12 @@ main {
 /* ---------- Forms ---------- */
 label { display: block; font-size: .8rem; font-weight: 600; color: var(--ink-soft); margin-bottom: .7rem; }
 
+/* Input with an inline "?" tooltip beside it */
+.input-tip { display: flex; align-items: center; gap: .45rem; }
+.input-tip > input { flex: 1 1 auto; min-width: 0; margin-top: 0; }
+.input-tip > .hint { flex: 0 0 auto; margin-left: 0; }
+.toolbar > .input-tip { flex: 1 1 260px; }
+
 input, select, textarea {
   width: 100%;
   margin-top: .3rem;

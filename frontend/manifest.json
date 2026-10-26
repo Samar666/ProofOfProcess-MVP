@@ -1,7 +1,7 @@
 {
-  "name": "ProofOfProcess",
-  "short_name": "PoP",
-  "description": "Show the work behind the work. Process receipts for students, teachers, and parents.",
+  "name": "ByMe",
+  "short_name": "ByMe",
+  "description": "By Me, not AI. Process receipts that show how your work got made.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#f5f6fa",

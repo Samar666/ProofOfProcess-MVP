@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ProofOfProcess</title>
-<meta name="description" content="Show the work behind the work. Process receipts for students, teachers, and parents.">
+<title>ByMe</title>
+<meta name="description" content="By Me, not AI. Process receipts that show how your work got made — for students, teachers, and parents.">
 <meta name="theme-color" content="#4f46e5">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
@@ -14,10 +14,10 @@
 
 <header class="topbar">
   <div class="brand">
-    <span class="mark" aria-hidden="true">P</span>
+    <span class="mark" aria-hidden="true">B</span>
     <div class="brand-text">
-      <h1>ProofOfProcess</h1>
-      <p>Show the work behind the work.</p>
+      <h1>ByMe</h1>
+      <p>By Me, not AI.</p>
     </div>
   </div>
   <nav class="tabs" aria-label="Primary">
@@ -99,9 +99,18 @@
           <h3>Sources
             <span class="hint" tabindex="0" data-tip="Add a link and the claim it supports. This becomes evidence in the receipt.">?</span>
           </h3>
-          <input id="src-title" placeholder="Source title" aria-label="Source title">
-          <input id="src-url" placeholder="https://…" aria-label="Source URL">
-          <input id="src-claim" placeholder="Claim it supports" aria-label="Claim this source supports">
+          <div class="input-tip">
+            <input id="src-title" placeholder="Source title" aria-label="Source title">
+            <span class="hint" tabindex="0" data-tip="Name the source so you remember what it is, e.g. CDC teen sleep page.">?</span>
+          </div>
+          <div class="input-tip">
+            <input id="src-url" placeholder="https://…" aria-label="Source URL">
+            <span class="hint" tabindex="0" data-tip="Paste the full link. This becomes clickable evidence in your receipt.">?</span>
+          </div>
+          <div class="input-tip">
+            <input id="src-claim" placeholder="Claim it supports" aria-label="Claim this source supports">
+            <span class="hint" tabindex="0" data-tip="One short sentence: which of your points does this source back up?">?</span>
+          </div>
           <button class="btn btn-ghost btn-block" id="add-source">Add source</button>
           <ul class="list" id="source-list"></ul>
         </article>
@@ -112,9 +121,18 @@
           </h3>
           <label class="check"><input type="checkbox" id="ai-used"> I used AI for this draft</label>
           <div id="ai-fields" class="stack" hidden>
-            <input id="ai-purpose" placeholder="What I used it for" aria-label="What I used AI for">
-            <input id="ai-accepted" placeholder="What I kept or edited" aria-label="What I kept or edited">
-            <input id="ai-rejected" placeholder="What I rejected" aria-label="What I rejected">
+            <div class="input-tip">
+              <input id="ai-purpose" placeholder="What I used it for" aria-label="What I used AI for">
+              <span class="hint" tabindex="0" data-tip="e.g. brainstorm counterarguments or suggest a title. Be specific.">?</span>
+            </div>
+            <div class="input-tip">
+              <input id="ai-accepted" placeholder="What I kept or edited" aria-label="What I kept or edited">
+              <span class="hint" tabindex="0" data-tip="What did you actually use, in your own words? Keeping something means you checked it.">?</span>
+            </div>
+            <div class="input-tip">
+              <input id="ai-rejected" placeholder="What I rejected" aria-label="What I rejected">
+              <span class="hint" tabindex="0" data-tip="What did you say no to, and why? Rejecting suggestions is a skill teachers love to see.">?</span>
+            </div>
           </div>
         </article>
       </aside>
@@ -179,7 +197,10 @@
 
     <article class="card">
       <div class="toolbar">
-        <input id="receipt-id" placeholder="Receipt id or link">
+        <div class="input-tip">
+          <input id="receipt-id" placeholder="Receipt id or link">
+          <span class="hint" tabindex="0" data-tip="Paste the whole link the student shared, or just the receipt id. Read-only; you cannot change anything.">?</span>
+        </div>
         <button class="btn" id="open-receipt">Open receipt</button>
       </div>
     </article>
@@ -198,9 +219,11 @@
     </article>
 
     <article class="card" id="note-card" hidden>
-      <h3>Note for the parent view</h3>
+      <h3>Note for the parent view
+        <span class="hint" tabindex="0" data-tip="One or two sentences a parent can act on. It appears in the read-only parent link.">?</span>
+      </h3>
       <p class="muted">This appears in the parent progress link. Do not include grades or private student information.</p>
-      <textarea id="note-body" rows="3" placeholder="e.g. Strong revision after Source 3 — ask about the thesis change."></textarea>
+      <textarea id="note-body" rows="3" placeholder="e.g. Strong revision after Source 3 — ask about the thesis change." aria-label="Note for the parent view"></textarea>
       <div class="toolbar">
         <button class="btn" id="save-note">Save note</button>
         <span class="muted" id="note-status"></span>
@@ -219,7 +242,10 @@
     <article class="card" id="parent-load">
       <p class="muted">Paste the parent link or token you received.</p>
       <div class="toolbar">
-        <input id="parent-token" placeholder="Parent link or token">
+        <div class="input-tip">
+          <input id="parent-token" placeholder="Parent link or token">
+          <span class="hint" tabindex="0" data-tip="Paste the private link you received. It is read-only, expires after 30 days, and never shows raw drafts.">?</span>
+        </div>
         <button class="btn" id="open-parent">Open progress</button>
       </div>
       <p class="muted small">To create a link for a demo, open the Receipt tab and click “Create parent link”.</p>
@@ -247,12 +273,15 @@
         <article class="card">
           <h3>Student &amp; delivery</h3>
           <label>Anonymous code
+            <span class="hint" tabindex="0" data-tip="The class code receipts are grouped under, like English-3B-07. Never a real name.">?</span>
             <input id="setting-code" placeholder="English-3B-07">
           </label>
           <label>Parent email
+            <span class="hint" tabindex="0" data-tip="Where progress reports would be sent once delivery is enabled. Stored on this server only.">?</span>
             <input id="setting-email" type="email" placeholder="parent@example.com">
           </label>
           <label>Report cadence
+            <span class="hint" tabindex="0" data-tip="How often parents get a summary. Weekly is recommended so it stays a conversation, not surveillance.">?</span>
             <select id="setting-cadence">
               <option value="weekly">Weekly (recommended)</option>
               <option value="daily">Daily</option>
@@ -269,9 +298,11 @@
           <h3>Schoology (via MCP)</h3>
           <p class="muted">This test checks the MCP link on this computer. To connect a student laptop to a hosted app, use a student sync token below; Schoology cookies never leave the laptop.</p>
           <label>School subdomain
+            <span class="hint" tabindex="0" data-tip="The part before .schoology.com in your district's URL, e.g. dtuhsd.">?</span>
             <input id="setting-schoology-base" placeholder="e.g. dtuhsd">
           </label>
           <label>schoology-mcp repo path (optional)
+            <span class="hint" tabindex="0" data-tip="Where the schoology-mcp checkout lives on this laptop. Leave blank to use the default ~/schoology-mcp.">?</span>
             <input id="setting-schoology-dir" placeholder="e.g. /Users/you/schoology-mcp">
           </label>
           <div class="toolbar">
@@ -284,6 +315,7 @@
           <h3>Student sync tokens</h3>
           <p class="muted">Create a token for a student laptop. The bridge fetches Schoology assignments locally and posts only metadata here. Hosted deployments should use an official LMS API.</p>
           <label>Anonymous code
+            <span class="hint" tabindex="0" data-tip="The student code this token is for. The bridge on that student's laptop posts assignment metadata only — never passwords or cookies.">?</span>
             <input id="sync-code" placeholder="English-3B-07">
           </label>
           <div class="toolbar">

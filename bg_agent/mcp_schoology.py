@@ -1,4 +1,4 @@
-"""Optional Schoology MCP client for the ProofOfProcess background agent.
+"""Optional Schoology MCP client for the ByMe background agent.
 
 This talks to the third-party `schoology-mcp` server over stdio:
     https://github.com/coimf/schoology-mcp

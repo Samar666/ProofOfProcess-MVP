@@ -1,12 +1,12 @@
-# ProofOfProcess — Plain-English Product Guide
+# ByMe — Plain-English Product Guide
 
-**One-line pitch:** ProofOfProcess shows *how* a piece of schoolwork was made, so students can prove their effort, teachers can give better feedback, and parents can see real progress.
+**One-line pitch:** ByMe shows *how* a piece of schoolwork was made, so students can prove their effort, teachers can give better feedback, and parents can see real progress.
 
 ---
 
 ## 1. What it is
 
-ProofOfProcess is a simple web app for writing assignments. While a student writes, the app saves small **checkpoints** — not every keystroke, just meaningful moments: when an outline appears, when a source is added, when a draft changes a lot, when the student reflects on their work.
+ByMe is a simple web app for writing assignments. While a student writes, the app saves small **checkpoints** — not every keystroke, just meaningful moments: when an outline appears, when a source is added, when a draft changes a lot, when the student reflects on their work.
 
 At the end, the app turns those checkpoints into a short **receipt**. The receipt is a one-minute summary of the process: how many checkpoints, how many sources, how many big revisions, whether AI was used and how, and what the student learned.
 
@@ -25,7 +25,7 @@ Schools are in a difficult spot.
 3. **Parents mostly see grades, not effort.** A grade tells them *what* happened, not *how*. They want to help, but they do not know what to ask.
 4. **Honest students get punished by suspicion.** When everyone is a suspect, the students who did the work do not get credit for it.
 
-Most tools try to solve this by guessing. They give an "AI score." These scores are unreliable, easy to argue with, and can be wrong in ways that hurt students. ProofOfProcess takes a different path: it records real process, and it lets the student decide what to share.
+Most tools try to solve this by guessing. They give an "AI score." These scores are unreliable, easy to argue with, and can be wrong in ways that hurt students. ByMe takes a different path: it records real process, and it lets the student decide what to share.
 
 ---
 
@@ -93,7 +93,7 @@ Most tools try to solve this by guessing. They give an "AI score." These scores 
 
 ---
 
-## 7. What ProofOfProcess does *not* claim
+## 7. What ByMe does *not* claim
 
 This matters for trust.
 
@@ -231,4 +231,4 @@ Before a real school pilot:
 
 ## 13. The story in one paragraph
 
-Students do real work every day, but schools mostly see the finished product. That makes it hard to reward effort, hard to teach process, and easy to suspect the wrong people. ProofOfProcess records meaningful checkpoints while a student writes, turns them into a short, honest receipt, and lets the student share it with a teacher and — if they choose — a parent. It does not detect AI. It does not log keystrokes. It does not claim to know who wrote the work. It simply makes the process visible, with consent, so the people around the student can help.
+Students do real work every day, but schools mostly see the finished product. That makes it hard to reward effort, hard to teach process, and easy to suspect the wrong people. ByMe records meaningful checkpoints while a student writes, turns them into a short, honest receipt, and lets the student share it with a teacher and — if they choose — a parent. It does not detect AI. It does not log keystrokes. It does not claim to know who wrote the work. It simply makes the process visible, with consent, so the people around the student can help.

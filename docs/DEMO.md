@@ -1,4 +1,4 @@
-# ProofOfProcess — Demo Runbook (two phones, ~6 minutes)
+# ByMe — Demo Runbook (two phones, ~6 minutes)
 
 ## One-time prep (on this Mac)
 

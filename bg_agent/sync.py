@@ -1,4 +1,4 @@
-"""Sync Schoology assignment metadata to a Proof of Process server.
+"""Sync Schoology assignment metadata to a ByMe server.
 
 Run this on the student's laptop while they are signed in to Schoology in
 Chrome. The MCP server reads the local browser session; the app server only
@@ -104,7 +104,7 @@ def _post(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Sync Schoology assignments from this laptop to Proof of Process."
+        description="Sync Schoology assignments from this laptop to ByMe."
     )
     parser.add_argument("--server", default=os.environ.get("POP_SERVER_URL", "http://127.0.0.1:8013"))
     parser.add_argument("--token", default=os.environ.get("POP_SYNC_TOKEN", ""))

@@ -1,6 +1,6 @@
-# ProofOfProcess — MVP (local-first)
+# ByMe — MVP (local-first)
 
-Evidence of process, not proof of authorship.
+**By Me, not AI.** Evidence of process, not proof of authorship.
 
 ## Run
 

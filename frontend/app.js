@@ -1,4 +1,4 @@
-/* ProofOfProcess — frontend (no build step).
+/* ByMe — frontend (no build step).
    Local-first snapshots + hash chain, receipts for teachers, read-only parent digests. */
 "use strict";
 

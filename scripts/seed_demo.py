@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Seed a clean, polished demo dataset for the ProofOfProcess demo.
+"""Seed a clean, polished demo dataset for the ByMe demo.
 
 Resets the demo student (English-3B-07), then creates:
   - 4 demo Schoology assignments (one past due, one upcoming, one done)

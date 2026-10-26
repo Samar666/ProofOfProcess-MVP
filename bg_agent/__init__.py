@@ -1,4 +1,4 @@
-"""Optional local bridge for Proof of Process.
+"""Optional local bridge for ByMe.
 
 The package no longer imports the FastAPI app at import time. The supported
 entry point is ``python3 -m bg_agent.sync``; the legacy scheduler/report code
