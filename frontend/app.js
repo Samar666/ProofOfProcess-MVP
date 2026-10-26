@@ -85,14 +85,12 @@ async function sha256hex(str) {
     const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
   }
-  // Non-secure-context fallback. The server will reject this chain, by design.
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < str.length; i++) {
-    const ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
+  // Non-secure-context fallback (e.g. plain HTTP on a LAN for the two-phone demo).
+  // Pure-JS SHA-256, output matches Web Crypto, so the chain still verifies.
+  if (typeof globalThis.popSha256Hex === "function") {
+    return globalThis.popSha256Hex(str);
   }
-  return "FALLBACK-" + (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
+  throw new Error("SHA-256 unavailable: load sha256.js before app.js");
 }
 
 /* ---------------- snapshots ---------------- */
@@ -134,7 +132,6 @@ async function takeSnapshot(trigger, note = "") {
   persist();
   renderAll();
   setSaveState(`Saved checkpoint #${snap.seq} • ${trigger}`);
-  if (hash.startsWith("FALLBACK")) toast("Secure hashing unavailable. Use localhost or HTTPS.", "bad");
   return snap;
 }
 
@@ -432,6 +429,28 @@ function renderReceiptRecord(rec) {
 }
 
 /* ---------------- share box ---------------- */
+async function copyText(text, label = "Copied.") {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast(label, "good");
+    return;
+  } catch (_) { /* insecure context (LAN http) — fall back to execCommand */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, ta.value.length);
+    const ok = document.execCommand("copy");
+    ta.remove();
+    if (ok) { toast(label, "good"); return; }
+  } catch (_) { /* give up below */ }
+  toast("Copy failed. Select the text manually.", "bad");
+}
+
 function renderShare(items) {
   const box = el("share-box");
   if (!box) return;
@@ -442,10 +461,7 @@ function renderShare(items) {
         h("div", { class: "muted small", text: item.label }),
         h("a", { href: item.href, text: item.text })
       );
-      const copy = h("button", { class: "btn btn-ghost copy-btn", type: "button", text: "Copy", onclick: async () => {
-        try { await navigator.clipboard.writeText(item.href); toast("Link copied.", "good"); }
-        catch (_) { toast("Copy failed. Select the link manually.", "bad"); }
-      } });
+      const copy = h("button", { class: "btn btn-ghost copy-btn", type: "button", text: "Copy", onclick: () => copyText(item.href, "Link copied.") });
       row.appendChild(copy);
       box.appendChild(row);
     } else {
@@ -925,15 +941,6 @@ async function testSchoology() {
 }
 
 /* ---------------- sync tokens ---------------- */
-async function copyText(text, label = "Copied.") {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast(label, "good");
-  } catch (_) {
-    toast("Copy failed. Select the text manually.", "bad");
-  }
-}
-
 function renderSyncTokenOutput(data) {
   const box = el("sync-token-out");
   if (!box) return;

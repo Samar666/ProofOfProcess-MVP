@@ -8,7 +8,7 @@ Evidence of process, not proof of authorship.
 cd ~/proofofprocess_app/backend
 cp .env.example .env          # first run: enables local dev sign-in
 pip install -r requirements.txt
-python3 -m uvicorn app:app --port 8013 --reload
+python3 -m uvicorn app:app --port 8013 --host 0.0.0.0   # 0.0.0.0 = phones can reach it
 # Frontend PWA at http://localhost:8013/
 # Docs at http://localhost:8013/docs
 ```
@@ -17,8 +17,14 @@ Health: `GET /api/health`
 
 ## Demo (2 phones)
 
-1. Phone A (student): write 500+ words, add 2 sources, disclose AI, add reflection → Save checkpoint → Receipt → Generate → copy teacher link.
-2. Phone B (teacher): open `/?view=teacher&id=XXXX` → read the summary → expand diff → Yes/No feedback → add a note for the parent view.
+Quick start: `scripts/start_demo.sh` — serves on the LAN, seeds a clean demo
+dataset (receipt + assignments + teacher note + parent link), and prints the
+phone URL. Full walkthrough + talking points + troubleshooting:
+[`docs/DEMO.md`](docs/DEMO.md). Hashing degrades gracefully to pure-JS SHA-256
+over plain LAN HTTP, so the chain still verifies on phones.
+
+1. Phone A (student): write, add sources, disclose AI, add reflection → Save checkpoint → Receipt → Generate → copy teacher link.
+2. Phone B (teacher): open `/?view=teacher&id=XXXX` → read the summary → Yes/No feedback → add a note for the parent view.
 3. Generate a parent link, then show **coverage**, **what to ask**, and the **teacher note** on the Parent view.
 4. Show `How this was calculated` + Verify hash chain.
 
